@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 //   console.log(`${index}: ${val}`);
 // });
 
-const shouldUpdateZ = argv[2] === 'z' || '--z' ? argv[2] : ''
+const shouldUpdateZ = argv[2] === 'z' || argv[2] === '--z' ? argv[2] : ''
 
 // Init __dirname since it is a CommonJS variable and not available in ES modules
 const __filename = fileURLToPath(import.meta.url);
