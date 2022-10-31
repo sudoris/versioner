@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 //   console.log(`${index}: ${val}`);
 // });
 
-const shouldUpdateZ = argv[2] === 'z' || '--z' ? argv[2] : ''
+const shouldUpdateZ = argv[2] === 'z' || argv[2] === '--z' ? argv[2] : ''
 
 // Init __dirname since it is a CommonJS variable and not available in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 let currentDir
 // Attempt to open current directory
 try {
-  currentDir = await fs.opendir(__dirname); 
+  currentDir = await fs.opendir(__dirname);
 } catch (err) {
   console.error(err);
   process.exit()
@@ -42,7 +42,7 @@ for await (const dirent of currentDir) {
         versionNum = versionNumMatch[1]
       }
       if (!versionNum) continue
-      const xyz = versionNum.split('.')  
+      const xyz = versionNum.split('.')
       const z = xyz.length === 3 ? xyz[2] : null
       if (!z) continue
       const dateStrMatch = z.match(/\((.*)\)/)
@@ -60,7 +60,7 @@ for await (const dirent of currentDir) {
           hourStr = hour.toString()
         }
         let nowStr = now
-          .toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })        
+          .toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
           .substring(2, 10)
           .replaceAll('/', '')
 
@@ -68,7 +68,7 @@ for await (const dirent of currentDir) {
         if (hourStr === dateStr.substring(6, 8)) {
           now = addHour(now)
           hour = now.getHours()
-        }        
+        }
         if (hour < 10) {
           hourStr = `0${hour}`
         } else {
@@ -76,49 +76,49 @@ for await (const dirent of currentDir) {
         }
 
         nowStr = now
-          .toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })        
+          .toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
           .substring(2, 10)
           .replaceAll('/', '')
 
         newDateStr = nowStr + hourStr
 
-        let newVersionNum 
+        let newVersionNum
         if (newDateStr > dateStr) {
           newVersionNum = replaceContent(versionNum, dateStr, newDateStr)
         } else {
           newVersionNum = versionNum
-        }       
+        }
 
-        if (shouldUpdateZ) {           
+        if (shouldUpdateZ) {
           const miniVersionNumberMatch = z.match(/(^[0-9]+?)\(/)
           let newMiniVersion
           if (miniVersionNumberMatch) {
             const oldMiniVersion = miniVersionNumberMatch[1]
             newMiniVersion = (Number(oldMiniVersion) + 1).toString()
             const newXYZ = newVersionNum.split('.')
-            const newZ = newXYZ.length === 3 ? newXYZ[2] : null            
+            const newZ = newXYZ.length === 3 ? newXYZ[2] : null
             if (newZ) {
-              const updatedNewZ = newZ.replace(oldMiniVersion, newMiniVersion)             
-              newVersionNum = replaceContent(newVersionNum, newZ, updatedNewZ)    
+              const updatedNewZ = newZ.replace(oldMiniVersion, newMiniVersion)
+              newVersionNum = replaceContent(newVersionNum, newZ, updatedNewZ)
             }
-          }        
+          }
         }
 
         const newContent = replaceContent(fileContents, versionNum, newVersionNum)
 
-        try {         
+        try {
           await fs.writeFile(filePath, newContent);
 
         } catch (err) {
           console.log(err);
         }
       }
-    }       
-  } 
+    }
+  }
 }
 
 function roundMinutes(date: Date) {
-  date.setHours(date.getHours() + Math.round(date.getMinutes()/60));
+  date.setHours(date.getHours() + Math.round(date.getMinutes() / 60));
   return date;
 }
 
